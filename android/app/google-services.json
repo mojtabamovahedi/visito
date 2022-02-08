@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "155933745079",
+    "firebase_url": "https://visito-bdb18-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "visito-bdb18",
+    "storage_bucket": "visito-bdb18.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:155933745079:android:d6aae95119f7e5eb3b1232",
+        "android_client_info": {
+          "package_name": "ir.visito"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "155933745079-ssjjc035987pr8hnq5u4rrlgu29umq9t.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB7JIw0VgD_h4uvswUlAzxFpqCItazcM7s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "155933745079-ssjjc035987pr8hnq5u4rrlgu29umq9t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
