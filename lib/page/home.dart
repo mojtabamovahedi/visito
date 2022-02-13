@@ -1,90 +1,95 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:searchfield/searchfield.dart';
-import 'package:visito/page/readdata.dart';
-import 'package:visito/page/writedata.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert' as convert;
+
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  String access;
+  String refresh;
+  Home({Key? key,required this.access,required this.refresh}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  final database = FirebaseDatabase.instance.reference();
-  late final int Last;
+  List stores = [];
+  List<String> users = [];
+  bool loading = true;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    findLastOne();
+    getStore();
   }
 
-  void findLastOne() async {
-    int lastCode = await database.child("store/").orderByKey().limitToLast(1).once().then((snapshot) {
-      return (snapshot.value.values).toList()[0]["code"];
-    });
-    Last = lastCode;
-    print("last code => $lastCode");
-  }
-
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('لیست مغازه ها'),
-        centerTitle: true,
-      ),
-      body: Center(
-          child: Column(
-             children: [
-              ElevatedButton(
-                  onPressed: () async{
-                    try{
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Write())
-                      );
-                    }catch(e){
-                      print('ERROR');
-                      print(e);
-                    }
-                  },
-                  child: const Text('write data')
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                  onPressed: () async{
-                    try{
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Read(Last: Last,)));
-                    }catch(e){
-                      print('ERROR');
-                      print(e);
-                    }
-                  },
-                  child: const Text('read base')
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-                child: SearchField(
-                  suggestions: [],
-                  hint: 'جستجو',
+    for(int i=0;i<stores.length;i++){
+      var temp = stores[i];
+      users.add(temp["user"].toString());
+    }
+    if(loading){
+      return Container(
+        color: Colors.white,
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }else{
+      return Scaffold(
+        body: SafeArea(
+          child: Container(
+            color: Colors.grey[200],
+            child: Column(
+              children: [
+                const SizedBox(height: 7.5,),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                  child: SearchField(
+                    suggestions: users,
+                    hint: "search",
+                  ),
                 ),
-              ),
-              const SizedBox(height: 15),
-              const Text('    '),
-            ],
-          )
-      ),
-    );
+                Expanded(
+                  child: ListView.builder(
+                      itemCount: stores.length,
+                      shrinkWrap: true,
+                      itemBuilder: (BuildContext context,int index){
+                        var store = stores[index];
+                        return Card(
+                          color: Colors.white70,
+                          child: ListTile(
+                            leading: const Icon(Icons.person),
+                            title: Text("${store["user"]}" , textAlign: TextAlign.right,),
+                            subtitle: Text("${store["id"]}", textAlign: TextAlign.right,),
+                            onTap: (){
+
+                            },
+                          ),
+                        );
+                      }
+                  ),
+                )
+              ],
+            ),
+          ),
+        ),
+      );
+    }
   }
-}
 
-Future<bool> sendData() async {
-
-
-  return false;
+  void getStore() async{
+    var response = await http.get(
+      Uri.parse("http://rvisito.herokuapp.com/api/v1/visitor/"),
+      headers: {"authorization":"Bearer ${widget.access}"},);
+    if(response.statusCode == 200){
+      var jsonResponse = convert.jsonDecode(response.body);
+      stores = jsonResponse;
+      setState(() {
+        loading = false;
+      });
+    }
+  }
 }

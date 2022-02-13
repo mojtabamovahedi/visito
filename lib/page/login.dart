@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
-import 'package:visito/page/readdata.dart';
+import 'package:visito/page/home.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 
 class LoginResponse {
   String refresh;
@@ -40,11 +38,8 @@ class APIservice {
       },
     );
     if (response.statusCode == 200) {
-      print("response body is ${response.body}");
       return LoginResponse.fromJson(json.decode(response.body));
     } else {
-      print("response is ${response.statusCode}");
-      print("LOGIN NA MOVAFAGH");
       return LoginResponse(refresh: '', access: '');
     }
   }
@@ -77,12 +72,13 @@ class _LoginState extends State<Login> {
   bool validatePassword = false;
 
   String failedLoginError = "";
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          child: Column(
+           child: Column(
             children: [
               Container(
                 height: 150.0,
@@ -146,6 +142,11 @@ class _LoginState extends State<Login> {
                   style: ElevatedButton.styleFrom(primary: Colors.blueGrey),
                   child: const Text('ENTER'),
                   onPressed: () {
+                    FocusScopeNode currentFocus = FocusScope.of(context);
+
+                    if (!currentFocus.hasPrimaryFocus) {
+                      currentFocus.unfocus();
+                    }
                     if(usernameController.text.isEmpty || passwordController.text.isEmpty){
                       if(usernameController.text.isEmpty){
                         setState(() {
@@ -173,10 +174,10 @@ class _LoginState extends State<Login> {
                       });
                       APIservice apiService = APIservice();
                       apiService.login(request).then((value){
-                        if(value.refresh.isNotEmpty){
+                        if(value.access.isNotEmpty){
                           Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (BuildContext context) => Read(Last: 5)));
+                              MaterialPageRoute(builder: (BuildContext context) => Home(access: value.access,refresh: value.refresh,)));
                         }else{
                           setState(() {
                             failedLoginError = "username or password is WRONG!";
