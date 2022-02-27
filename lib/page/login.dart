@@ -3,16 +3,18 @@ import 'package:visito/page/home.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+
 class LoginResponse {
   String refresh;
   String access;
-
-  LoginResponse({required this.refresh, required this.access});
+  int id;
+  LoginResponse({required this.refresh, required this.access, required this.id});
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {
     return LoginResponse(
       refresh: json["refresh"] ?? "",
       access: json["access"] ?? "",
+      id: json["id"] ?? ""
     );
   }
 }
@@ -40,7 +42,7 @@ class APIservice {
     if (response.statusCode == 200) {
       return LoginResponse.fromJson(json.decode(response.body));
     } else {
-      return LoginResponse(refresh: '', access: '');
+      return LoginResponse(refresh: '', access: '', id: 0);
     }
   }
 }
@@ -175,9 +177,10 @@ class _LoginState extends State<Login> {
                       APIservice apiService = APIservice();
                       apiService.login(request).then((value){
                         if(value.access.isNotEmpty){
+                          print(value.id);
                           Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(builder: (BuildContext context) => Home(access: value.access,refresh: value.refresh,)));
+                              MaterialPageRoute(builder: (BuildContext context) => Home(access: value.access,refresh: value.refresh,id: value.id)));
                         }else{
                           setState(() {
                             failedLoginError = "username or password is WRONG!";
