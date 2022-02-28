@@ -52,6 +52,7 @@ class _InputTabState extends State<InputTab> {
                       onPressed: () async {
                         FocusScope.of(context).requestFocus(FocusNode());
                         setState(() {
+                          brand.clear();
                           _brandsLoading = true;
                         });
                         List tempListForBrand = [];
@@ -143,13 +144,15 @@ class _InputTabState extends State<InputTab> {
                               color: Colors.white,
                               width: 100,
                               height: 35,
-                              child: TextFormField(
+                              child: TextField(
                                 onChanged: (text) {
                                   skulist[index] = text;
                                 },
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [FilteringTextInputFormatter.digitsOnly,LengthLimitingTextInputFormatter(4)],
                                 decoration: const InputDecoration(
+                                  hintText: "enter",
+                                  hintStyle: TextStyle(fontSize: 12.0),
                                   border: OutlineInputBorder(),
                                   label: Center(child: Text("SKU")),
                                   labelStyle: TextStyle(fontSize: 10.0),
@@ -164,13 +167,15 @@ class _InputTabState extends State<InputTab> {
                               color: Colors.white,
                               width: 100,
                               height: 35,
-                              child: TextFormField(
+                              child: TextField(
                                 onChanged: (text) {
                                   faceList[index]=text;
                                 },
                                 keyboardType: TextInputType.number,
                                 inputFormatters: [FilteringTextInputFormatter.digitsOnly,LengthLimitingTextInputFormatter(4)],
                                 decoration: const InputDecoration(
+                                  hintText: "enter",
+                                  hintStyle: TextStyle(fontSize: 12.0),
                                   border: OutlineInputBorder(),
                                   label: Center(child: Text("FACE",)),
                                   labelStyle: TextStyle(fontSize: 10.0),
@@ -210,7 +215,6 @@ class _InputTabState extends State<InputTab> {
     for(int i=0;i<skulist.length;i++){
       if((skulist[i] == '-1' && faceList[i] == '-1') || (skulist[i].isEmpty && faceList[i].isEmpty) || (skulist[i].isEmpty && faceList[i] == '-1') || (skulist[i]=='-1' && faceList[i].isEmpty)){
         setState(() {
-          snapBarMessage = "Nothing change";
           resultColor[i] = Colors.yellow[100];
         });
       }else{
@@ -224,6 +228,9 @@ class _InputTabState extends State<InputTab> {
           await _createVisitation(skulist[i], faceList[i], access, storeId, brandId[i], widget.userId, i);
         }
       }
+    }
+    if(snapBarMessage.isEmpty){
+      snapBarMessage = "Nothing change";
     }
     ScaffoldMessenger.of(context).showSnackBar(snackBar(snapBarMessage));
   }

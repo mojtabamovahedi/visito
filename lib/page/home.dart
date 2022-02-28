@@ -39,46 +39,58 @@ class _HomeState extends State<Home> {
         ),
       );
     }else{
-      return Scaffold(
-        body: SafeArea(
-          child: Container(
-            color: Colors.grey[200],
-            child: Column(
-              children: [
-                const SizedBox(height: 7.5,),
-                Container(
-                  padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
-                  child: SearchField(
-                    suggestions: users,
-                    hint: "search",
-                  ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                      itemCount: stores.length,
-                      shrinkWrap: true,
-                      itemBuilder: (BuildContext context,int index){
-                        var store = stores[index];
-                        return Card(
-                          color: Colors.white70,
-                          child: ListTile(
-                            leading: const Icon(Icons.person),
-                            title: Text("${store["name"]}" , textAlign: TextAlign.right,),
-                            subtitle: Text("${store["address"]}", textAlign: TextAlign.right,),
-                            onTap: (){
-                              Navigator.push(
-                                context,
-                                  MaterialPageRoute(builder: (BuildContext context) => ProfileStore(
-                                    storeId: store["id"], name: store["name"], address: store["address"],access: widget.access,userId: widget.id,
-                                  ))
-                              );
-                            },
-                          ),
+      return GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
+          body: SafeArea(
+            child: Container(
+              color: Colors.grey[200],
+              child: Column(
+                children: [
+                  const SizedBox(height: 7.5,),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                    child: SearchField(
+                      suggestions: users,
+                      hint: "search",
+                      onTap:(name){
+                        var store = stores.where((element) => element["name"] == name).elementAt(0);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (BuildContext context) => ProfileStore(
+                              storeId: store["id"], name: store["name"], address: store["address"],access: widget.access,userId: widget.id,
+                            ))
                         );
-                      }
+                      },
+                    ),
                   ),
-                )
-              ],
+                  Expanded(
+                    child: ListView.builder(
+                        itemCount: stores.length,
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context,int index){
+                          var store = stores[index];
+                          return Card(
+                            color: Colors.white70,
+                            child: ListTile(
+                              leading: const Icon(Icons.person),
+                              title: Text("${store["name"]}" , textAlign: TextAlign.right,),
+                              subtitle: Text("${store["address"]}", textAlign: TextAlign.right,),
+                              onTap: (){
+                                Navigator.push(
+                                  context,
+                                    MaterialPageRoute(builder: (BuildContext context) => ProfileStore(
+                                      storeId: store["id"], name: store["name"], address: store["address"],access: widget.access,userId: widget.id,
+                                    ))
+                                );
+                              },
+                            ),
+                          );
+                        }
+                    ),
+                  )
+                ],
+              ),
             ),
           ),
         ),

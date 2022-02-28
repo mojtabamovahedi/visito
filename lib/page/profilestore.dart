@@ -77,64 +77,67 @@ class _ProfileStoreState extends State<ProfileStore> {
           brand.clear();
           return true;
         },
-        child: Scaffold(
-            resizeToAvoidBottomInset: true,
-            appBar: AppBar(
-              title: const Text('Profile'),
-              centerTitle: true,
-              leading: IconButton(
-                onPressed: (){
-                  Navigator.pop(context);
-                  _pageLoading = true;
-                  brand.clear();
-                },
-                icon: const Icon(Icons.keyboard_backspace),
-              ),
-            ),
-            body: SingleChildScrollView(
-              child: Container(
-                height: size - 80,
-                color: Colors.grey[200],
-                child: Center(
-                  child: Column(
-                    children: [
-                      Information(name: widget.name, address: widget.address),
-                      Column(
-                        children: [
-                          DefaultTabController(
-                              length: 2,
-                              initialIndex: 0,
-                              child: Column(
-                                children: [
-                                  const TabBar(
-                                      isScrollable: false,
-                                      labelColor: Colors.black,
-                                      unselectedLabelColor: Colors.blueGrey,
-                                      tabs: [
-                                        Tab(text: "Add information"),
-                                        Tab(text: 'History of visitation')
-                                      ]),
-                                  Container(
-                                    color: Colors.grey[200],
-                                    height: size - 225,
-                                    child: TabBarView(
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      children: [
-                                        InputTab(access: widget.access, productName: productName,productId: productId, storeId: widget.storeId,userId: widget.userId),
-                                        Visitation(access: widget.access, id: widget.storeId,)
-                                      ],
-                                    ),
-                                  )
-                                ],
-                              )
-                          ),
-                        ],
-                      )
-                    ],
-                  ),
+        child: GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Scaffold(
+              resizeToAvoidBottomInset: true,
+              appBar: AppBar(
+                title: const Text('Profile'),
+                centerTitle: true,
+                leading: IconButton(
+                  onPressed: (){
+                    Navigator.pop(context);
+                    _pageLoading = true;
+                    brand.clear();
+                  },
+                  icon: const Icon(Icons.keyboard_backspace),
                 ),
               ),
-            )),
+              body: SingleChildScrollView(
+                child: Container(
+                  height: size - 80,
+                  color: Colors.grey[200],
+                  child: Center(
+                    child: Column(
+                      children: [
+                        Information(name: widget.name, address: widget.address),
+                        Column(
+                          children: [
+                            DefaultTabController(
+                                length: 2,
+                                initialIndex: 0,
+                                child: Column(
+                                  children: [
+                                    const TabBar(
+                                        isScrollable: false,
+                                        labelColor: Colors.black,
+                                        unselectedLabelColor: Colors.blueGrey,
+                                        tabs: [
+                                          Tab(text: "Add information"),
+                                          Tab(text: 'History of visitation')
+                                        ]),
+                                    Container(
+                                      color: Colors.grey[200],
+                                      height: size - 225,
+                                      child: TabBarView(
+                                        physics: const NeverScrollableScrollPhysics(),
+                                        children: [
+                                          InputTab(access: widget.access, productName: productName,productId: productId, storeId: widget.storeId,userId: widget.userId),
+                                          Visitation(access: widget.access, id: widget.storeId,)
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                )
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              )),
+        ),
       );
     }
   }
