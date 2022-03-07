@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:visito/page/home.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 
 class LoginResponse {
@@ -54,9 +56,6 @@ class Login extends StatefulWidget {
   _LoginState createState() => _LoginState();
 }
 
-late String userName;
-late String password;
-
 class _LoginState extends State<Login> {
   bool boolVar = false;
   late LoginRequest request;
@@ -65,7 +64,18 @@ class _LoginState extends State<Login> {
   void initState() {
     super.initState();
     request = LoginRequest();
+
   }
+
+  Future checking() async {
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    var access = sharedPreferences.getString("access");
+    var id = sharedPreferences.getInt("id");
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => Home(access: access.toString(),id: id!.toInt())));
+  }
+
 
   final usernameController = TextEditingController();
   bool validateUsername = false;
@@ -77,132 +87,135 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
+
     return Scaffold(
       body: SingleChildScrollView(
-        child: Container(
-           child: Column(
-            children: [
-              Container(
-                height: 150.0,
-                width: double.infinity,
-                child: const Center(
-                  child: Text(
-                    "Login",
-                    style: TextStyle(
-                      fontSize: 50.0,
-                      color: Colors.white,
-                    ),
-                  ),
-                ),
-                decoration: const BoxDecoration(
-                    color: Colors.indigo,
-                    borderRadius:
-                        BorderRadius.vertical(bottom: Radius.circular(15.0))),
-              ),
-              const SizedBox(height: 100,),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-                    child: TextField(
-                      controller: usernameController,
-                      onChanged: (text) {
-                        request.username = text;
-                      },
-                      decoration: InputDecoration(border: const OutlineInputBorder(),
-                          labelText: 'user name',
-                        errorText: validateUsername ? 'Username Can\'t Be Empty' : null
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-                    child: TextField(
-                      controller: passwordController,
-                      onChanged: (text) {
-                        request.password = text;
-                      },
-                      obscureText: true,
-                      decoration: InputDecoration(border: const OutlineInputBorder(),
-                          labelText: 'password',
-                        errorText: validatePassword ? 'Username Can\'t Be Empty' : null
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-              Text(failedLoginError, style: const TextStyle(color: Colors.red),),
-              const SizedBox(height: 10),
-              Visibility(
-                visible: !boolVar,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(primary: Colors.blueGrey),
-                  child: const Text('ENTER'),
-                  onPressed: () {
-                    FocusScopeNode currentFocus = FocusScope.of(context);
+        child: Column(
+         children: [
+           Container(
+             height: 150.0,
+             width: double.infinity,
+             child: const Center(
+               child: Text(
+                 "Login",
+                 style: TextStyle(
+                   fontSize: 50.0,
+                   color: Colors.white,
+                 ),
+               ),
+             ),
+             decoration: const BoxDecoration(
+                 color: Colors.indigo,
+                 borderRadius:
+                     BorderRadius.vertical(bottom: Radius.circular(15.0))),
+           ),
+           const SizedBox(height: 100,),
+           Column(
+             mainAxisAlignment: MainAxisAlignment.center,
+             children: [
+               Container(
+                 padding:
+                     const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                 child: TextField(
+                   controller: usernameController,
+                   onChanged: (text) {
+                     request.username = text;
+                   },
+                   decoration: InputDecoration(border: const OutlineInputBorder(),
+                       labelText: 'user name',
+                     errorText: validateUsername ? 'Username Can\'t Be Empty' : null
+                   ),
+                 ),
+               ),
+               const SizedBox(height: 10),
+               Container(
+                 padding:
+                     const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                 child: TextField(
+                   controller: passwordController,
+                   onChanged: (text) {
+                     request.password = text;
+                   },
+                   obscureText: true,
+                   decoration: InputDecoration(border: const OutlineInputBorder(),
+                       labelText: 'password',
+                     errorText: validatePassword ? 'Username Can\'t Be Empty' : null
+                   ),
+                 ),
+               ),
+             ],
+           ),
+           const SizedBox(height: 10),
+           Text(failedLoginError, style: const TextStyle(color: Colors.red),),
+           const SizedBox(height: 10),
+           Visibility(
+             visible: !boolVar,
+             child: ElevatedButton(
+               style: ElevatedButton.styleFrom(primary: Colors.blueGrey),
+               child: const Text('ENTER'),
+               onPressed: () async {
+                 FocusScopeNode currentFocus = FocusScope.of(context);
 
-                    if (!currentFocus.hasPrimaryFocus) {
-                      currentFocus.unfocus();
-                    }
-                    if(usernameController.text.isEmpty || passwordController.text.isEmpty){
-                      if(usernameController.text.isEmpty){
-                        setState(() {
-                          validateUsername = true;
-                        });
-                      }else{
-                        setState(() {
-                          validateUsername = false;
-                        });
-                      }
-                      if(passwordController.text.isEmpty){
-                        setState(() {
-                          validatePassword = true;
-                        });
-                      }else{
-                        setState(() {
-                          validatePassword = false;
-                        });
-                      }
-                    }
+                 if (!currentFocus.hasPrimaryFocus) {
+                   currentFocus.unfocus();
+                 }
+                 if(usernameController.text.isEmpty || passwordController.text.isEmpty){
+                   if(usernameController.text.isEmpty){
+                     setState(() {
+                       validateUsername = true;
+                     });
+                   }else{
+                     setState(() {
+                       validateUsername = false;
+                     });
+                   }
+                   if(passwordController.text.isEmpty){
+                     setState(() {
+                       validatePassword = true;
+                     });
+                   }else{
+                     setState(() {
+                       validatePassword = false;
+                     });
+                   }
+                 }
 
-                    if(usernameController.text.isNotEmpty || passwordController.text.isNotEmpty){
-                      setState(() {
-                        boolVar = !boolVar;
-                      });
-                      APIservice apiService = APIservice();
-                      apiService.login(request).then((value){
-                        if(value.access.isNotEmpty){
-                          print(value.id);
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (BuildContext context) => Home(access: value.access,refresh: value.refresh,id: value.id)));
-                        }else{
-                          setState(() {
-                            failedLoginError = "username or password is WRONG!";
-                            boolVar = !boolVar;
-                          });
-                        }
-                      });
-                    }
-                  },
-                ),
-              ),
-              const SizedBox(
-                height: 20.0,
-              ),
-              Visibility(
-                visible: boolVar,
-                child: const CircularProgressIndicator(),
-              )
-            ],
+                 if(usernameController.text.isNotEmpty || passwordController.text.isNotEmpty){
+                   setState(() {
+                     boolVar = !boolVar;
+                   });
+                   APIservice apiService = APIservice();
+                   apiService.login(request).then((value) async {
+                     if(value.access.isNotEmpty){
+                       print(value.id);
+                       final SharedPreferences sharePreference = await SharedPreferences.getInstance();
+                       sharePreference.setString("username", usernameController.text);
+                       sharePreference.setString("password", passwordController.text);
+                       Navigator.pushReplacement(
+                           context,
+                           MaterialPageRoute(builder: (BuildContext context) => Home(access: value.access,id: value.id)));
+                     }else{
+                       setState(() {
+                         failedLoginError = "username or password is WRONG!";
+                         boolVar = !boolVar;
+                       });
+                     }
+                   });
+                 }
+               },
+             ),
+           ),
+           const SizedBox(
+             height: 20.0,
+           ),
+           Visibility(
+             visible: boolVar,
+             child: const CircularProgressIndicator(),
+           )
+         ],
           ),
-        ),
       ),
     );
   }
 }
+

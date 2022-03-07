@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 
 
 class Visitation extends StatefulWidget {
@@ -40,9 +41,7 @@ class _VisitationState extends State<Visitation> {
                     Map visit = visitations[index];
                     return Column(
                       children: [
-                        Card(
-                          child: VisitCard(id:visit["id"],face: visit["face"],sku: visit["sku"],date: visit["date"],)
-                        ),
+                        VisitCard(id:visit["id"],face: visit["face"],sku: visit["sku"],date: visit["date"],brandId: visit["brand"],),
                       ],
                     );
                   }
@@ -72,43 +71,52 @@ class _VisitationState extends State<Visitation> {
 
 class VisitCard extends StatelessWidget {
   int id;
+  int brandId;
   double face;
   double sku;
   String date;
-  VisitCard({Key? key,required this.id,required this.face,required this.sku,required this.date,}) : super(key: key);
+  VisitCard({Key? key,required this.id,required this.face,required this.sku,required this.date,required this.brandId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     List<String> time = date.split("T");
     time[1]=time[1].substring(0,time[1].length-1);
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(5.0),top: Radius.circular(5.0)),
-      ),
       padding: const EdgeInsets.fromLTRB(4.5, 0, 4.5, 0),
-      child: Column(
-        children: [
-          const SizedBox(height: 5.0,),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              const SizedBox(width: 5.0,),
-              Expanded(flex: 1,child: Text("id: $id",style: const TextStyle(fontSize: 16.0),)),
-              Expanded(flex: 2,child: Text("face: $face",style: const TextStyle(fontSize: 16.0),)),
-              Expanded(flex: 2,child: Text("sku: $sku",style: const TextStyle(fontSize: 16.0),)),
-            ],
-          ),
-          const SizedBox(height: 4.5,),
-          Row(
-            children: [
-              Text(time[0],style: TextStyle(color: Colors.grey[700]),),
-              const Spacer(),
-              Text(time[1],style: TextStyle(color: Colors.grey[700]),),
-            ],
-          ),
-          const SizedBox(height: 4.5,)
-        ],
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(6.0, 0, 10, 0),
+        decoration: BoxDecoration(
+          color: Colors.green[100],
+          borderRadius: const BorderRadius.vertical(bottom: Radius.circular(5.0),top: Radius.circular(5.0)),
+        ),
+        child: Column(
+          children: [
+            Card(
+              margin: const EdgeInsets.all(0),
+              child: Column(
+                children: [
+                  Text("brand id: $brandId", style: const TextStyle(fontSize: 16.0),),
+                  Row(
+                    children: [
+                      Text("face: $face",style: const TextStyle(fontSize: 16.0),),
+                      const Spacer(),
+                      Text("sku: $sku",style: const TextStyle(fontSize: 16.0),),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Row(
+              children: [
+                const SizedBox(width: 5,),
+                Text(time[0],style: TextStyle(color: Colors.grey[700]),),
+                const Spacer(),
+                Text(time[1],style: TextStyle(color: Colors.grey[700]),),
+                const SizedBox(width: 5,),
+              ],
+            )
+          ],
+        ),
       ),
     );
   }

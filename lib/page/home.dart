@@ -5,16 +5,15 @@ import 'package:visito/page/profilestore.dart';
 
 class Home extends StatefulWidget {
   String access;
-  String refresh;
   int id;
-  Home({Key? key,required this.access,required this.refresh, required this.id}) : super(key: key);
+  Home({Key? key,required this.access, required this.id}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  List stores = [];
+  List allStores = [];
   List<String> users = [];
   bool loading = true;
 
@@ -26,11 +25,6 @@ class _HomeState extends State<Home> {
 
   @override
   Widget build(BuildContext context) {
-    users.clear();
-    for(int i=0;i<stores.length;i++){
-      var temp = stores[i];
-      users.add(temp["name"].toString());
-    }
     if(loading){
       return Container(
         color: Colors.white,
@@ -39,6 +33,7 @@ class _HomeState extends State<Home> {
         ),
       );
     }else{
+      List showStore = allStores;
       return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
         child: Scaffold(
@@ -54,22 +49,26 @@ class _HomeState extends State<Home> {
                       suggestions: users,
                       hint: "search",
                       onTap:(name){
-                        var store = stores.where((element) => element["name"] == name).elementAt(0);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (BuildContext context) => ProfileStore(
-                              storeId: store["id"], name: store["name"], address: store["address"],access: widget.access,userId: widget.id,
-                            ))
-                        );
+                        var searchStore = allStores.where((element) => element["name"] == name);
+                        List stores = [];
+                        for(int i=0;i<searchStore.length;i++){
+                          stores.add(searchStore.elementAt(i));
+                        }
+                        setState(() {
+                          showStore = stores;
+                          //setSuggetation();
+                        });
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        print("the user => $users");
                       },
                     ),
                   ),
                   Expanded(
                     child: ListView.builder(
-                        itemCount: stores.length,
+                        itemCount: showStore.length,
                         shrinkWrap: true,
                         itemBuilder: (BuildContext context,int index){
-                          var store = stores[index];
+                          var store = showStore[index];
                           return Card(
                             color: Colors.white70,
                             child: ListTile(
@@ -106,11 +105,13 @@ class _HomeState extends State<Home> {
         options: Options(headers: {"authorization":"Bearer ${widget.access}"}),
       );
       if(response.statusCode == 200){
-        stores = response.data;
+        allStores = response.data;
         setState(() {
           loading = false;
         });
+        setSuggetation();
       }
+      print(allStores);
       print(response.data);
     }catch(e) {
       print("error:");
@@ -118,4 +119,13 @@ class _HomeState extends State<Home> {
     }
   }
 
+  void setSuggetation(){
+    users.clear();
+    for(int i=0;i<allStores.length;i++){
+      var temp = allStores[i];
+      setState(() {
+        users.add(temp["name"].toString());
+      });
+    }
+  }
 }
