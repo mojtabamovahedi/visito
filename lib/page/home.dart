@@ -1,90 +1,131 @@
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:searchfield/searchfield.dart';
-import 'package:visito/page/readdata.dart';
-import 'package:visito/page/writedata.dart';
+import 'package:dio/dio.dart';
+import 'package:visito/page/profilestore.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  String access;
+  int id;
+  Home({Key? key,required this.access, required this.id}) : super(key: key);
 
   @override
   _HomeState createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
-  final database = FirebaseDatabase.instance.reference();
-  late final int Last;
+  List allStores = [];
+  List<String> users = [];
+  bool loading = true;
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
-    findLastOne();
+    getStore();
   }
 
-  void findLastOne() async {
-    int lastCode = await database.child("store/").orderByKey().limitToLast(1).once().then((snapshot) {
-      return (snapshot.value.values).toList()[0]["code"];
-    });
-    Last = lastCode;
-    print("last code => $lastCode");
-  }
-
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('لیست مغازه ها'),
-        centerTitle: true,
-      ),
-      body: Center(
-          child: Column(
-             children: [
-              ElevatedButton(
-                  onPressed: () async{
-                    try{
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Write())
-                      );
-                    }catch(e){
-                      print('ERROR');
-                      print(e);
-                    }
-                  },
-                  child: const Text('write data')
+    if(loading){
+      return Container(
+        color: Colors.white,
+        child: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }else{
+      List showStore = allStores;
+      return GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
+          body: SafeArea(
+            child: Container(
+              color: Colors.grey[200],
+              child: Column(
+                children: [
+                  const SizedBox(height: 7.5,),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(5, 0, 5, 0),
+                    child: SearchField(
+                      suggestions: users,
+                      hint: "search",
+                      onTap:(name){
+                        var searchStore = allStores.where((element) => element["name"] == name);
+                        List stores = [];
+                        for(int i=0;i<searchStore.length;i++){
+                          stores.add(searchStore.elementAt(i));
+                        }
+                        setState(() {
+                          showStore = stores;
+                          //setSuggetation();
+                        });
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        print("the user => $users");
+                      },
+                    ),
+                  ),
+                  Expanded(
+                    child: ListView.builder(
+                        itemCount: showStore.length,
+                        shrinkWrap: true,
+                        itemBuilder: (BuildContext context,int index){
+                          var store = showStore[index];
+                          return Card(
+                            color: Colors.white70,
+                            child: ListTile(
+                              leading: const Icon(Icons.person),
+                              title: Text("${store["name"]}" , textAlign: TextAlign.right,),
+                              subtitle: Text("${store["address"]}", textAlign: TextAlign.right,),
+                              onTap: (){
+                                Navigator.push(
+                                  context,
+                                    MaterialPageRoute(builder: (BuildContext context) => ProfileStore(
+                                      storeId: store["id"], name: store["name"], address: store["address"],access: widget.access,userId: widget.id,
+                                    ))
+                                );
+                              },
+                            ),
+                          );
+                        }
+                    ),
+                  )
+                ],
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                  onPressed: () async{
-                    try{
-                      Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => Read(Last: Last,)));
-                    }catch(e){
-                      print('ERROR');
-                      print(e);
-                    }
-                  },
-                  child: const Text('read base')
-              ),
-              const SizedBox(height: 20),
-              Container(
-                padding: const EdgeInsets.fromLTRB(10, 5, 10, 0),
-                child: SearchField(
-                  suggestions: [],
-                  hint: 'جستجو',
-                ),
-              ),
-              const SizedBox(height: 15),
-              const Text('    '),
-            ],
-          )
-      ),
-    );
+            ),
+          ),
+        ),
+      );
+    }
   }
-}
 
-Future<bool> sendData() async {
+  void getStore() async {
+    try{
+      Dio dio = Dio();
+      Response response = await dio.get(
+        "http://rvisito.herokuapp.com/api/v1/store/",
+        options: Options(headers: {"authorization":"Bearer ${widget.access}"}),
+      );
+      if(response.statusCode == 200){
+        allStores = response.data;
+        setState(() {
+          loading = false;
+        });
+        setSuggetation();
+      }
+      print(allStores);
+      print(response.data);
+    }catch(e) {
+      print("error:");
+      print(e);
+    }
+  }
 
-
-  return false;
+  void setSuggetation(){
+    users.clear();
+    for(int i=0;i<allStores.length;i++){
+      var temp = allStores[i];
+      setState(() {
+        users.add(temp["name"].toString());
+      });
+    }
+  }
 }

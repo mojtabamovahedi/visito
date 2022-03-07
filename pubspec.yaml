@@ -32,6 +32,11 @@ dependencies:
   firebase_database: 7.1.1
   searchfield: ^0.5.6
   persian_fonts: ^1.0.4
+  dio: ^4.0.4
+  intl: ^0.17.0
+  extended_tabs: ^2.3.0
+  flutter_secure_storage: ^5.0.2
+  shared_preferences: ^2.0.13
   flutter:
     sdk: flutter
 
