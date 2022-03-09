@@ -8,8 +8,8 @@ bool _visibaleButton = false;
 String snapBarMessage = "";
 List brand = [];
 List brand_id = [];
-List<String> skulist = ['-1', '-1', '-1', '-1', '-1'];
-List<String> faceList = ['-1', '-1', '-1', '-1', '-1'];
+late List skulist ;
+late List faceList ;
 List resultColor = [Colors.white,Colors.white,Colors.white,Colors.white,Colors.white];
 
 class InputTab extends StatefulWidget {
@@ -26,8 +26,10 @@ class InputTab extends StatefulWidget {
 
 class _InputTabState extends State<InputTab> {
 
-  SnackBar snackBar(String textSnap){
-    final finalSnackBar = SnackBar(content: Text(textSnap));
+  SnackBar snackBar(String textSnap, int duration) {
+    final finalSnackBar = SnackBar(content: Text(textSnap),
+      duration: Duration(seconds: duration),
+    );
     return finalSnackBar;
   }
 
@@ -39,8 +41,9 @@ class _InputTabState extends State<InputTab> {
         Expanded(
           flex: 9,
           child: Container(
+            alignment: Alignment.centerLeft,
             padding: const EdgeInsets.fromLTRB(5, 5, 5, 0),
-            color: Colors.grey[300],
+            color: Colors.grey[200],
             child: ListView.builder(
               shrinkWrap: true,
               scrollDirection: Axis.horizontal,
@@ -57,31 +60,40 @@ class _InputTabState extends State<InputTab> {
                         });
                         List tempListForBrand = [];
                         List tempListForBrandId = [];
-                        try{
+                        try {
                           Dio dio = Dio();
                           Response responseForBrand = await dio.get(
-                            "http://rvisito.herokuapp.com/api/v1/brand/?product_id=${widget.productId[index]}",
-                            options: Options(headers: {"authorization":"Bearer ${widget.access}"}),
+                            "http://rvisito.herokuapp.com/api/v1/brand/?product_id=${widget
+                                .productId[index]}",
+                            options: Options(headers: {
+                              "authorization": "Bearer ${widget.access}"
+                            }),
                           );
                           List dataOfBrand = responseForBrand.data;
                           tempListForBrand.clear();
                           tempListForBrandId.clear();
-                          for(int j=0; j < dataOfBrand.length;j++){
+                          for (int j = 0; j < dataOfBrand.length; j++) {
                             var temp = dataOfBrand[j];
                             tempListForBrand.add(temp["name"]);
                             tempListForBrandId.add(temp["id"]);
                           }
-                        }catch(e){
+                        } catch (e) {
                           print(e);
                         }
                         setState(() {
-                          resultColor = [Colors.white,Colors.white,Colors.white,Colors.white,Colors.white];
+                          resultColor = [
+                            Colors.white,
+                            Colors.white,
+                            Colors.white,
+                            Colors.white,
+                            Colors.white
+                          ];
                           _visibaleButton = true;
                           _brandsLoading = false;
                           brand = tempListForBrand;
                           brand_id = tempListForBrandId;
-                          skulist = ['-1', '-1', '-1', '-1', '-1'];
-                          faceList = ['-1', '-1', '-1', '-1', '-1'];
+                          skulist = List.filled(brand.length, "");
+                          faceList = List.filled(brand.length, "");
                         });
                         print("brand => $brand");
                         print("brand id => $brand_id");
@@ -118,78 +130,85 @@ class _InputTabState extends State<InputTab> {
           flex: 25,
           child: ListView.builder(
               shrinkWrap: true,
-              itemCount: brand.length ,
+              itemCount: brand.length,
               itemBuilder: (BuildContext context, int index) {
-                  return Card(
-                    color: resultColor[index],
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 4.5, 0, 4.5),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          const SizedBox(width: 10.0,),
-                          Flexible(
-                            flex: 4,
-                            child: Row(
-                              children: [
-                                const Icon(Icons.radio_button_off, size: 10.0,),
-                                Text(" ${brand[index]}", style: const TextStyle(fontSize: 15.0),),
+                return Card(
+                  color: resultColor[index],
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 4.5, 0, 4.5),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        const SizedBox(width: 10.0,),
+                        Flexible(
+                          flex: 4,
+                          child: Row(
+                            children: [
+                              const Icon(Icons.radio_button_off, size: 10.0,),
+                              Text(" ${brand[index]}",
+                                style: const TextStyle(fontSize: 15.0),),
+                            ],
+                          ),
+                        ),
+                        const Spacer(flex: 1,),
+                        Flexible(
+                          flex: 2,
+                          child: Container(
+                            color: Colors.white,
+                            width: 100,
+                            height: 35,
+                            child: TextField(
+                              onChanged: (text) {
+                                skulist[index] = text;
+                              },
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(4)
                               ],
-                            ),
-                          ),
-                          const Spacer(flex: 1,),
-                          Flexible(
-                            flex: 2,
-                            child: Container(
-                              color: Colors.white,
-                              width: 100,
-                              height: 35,
-                              child: TextField(
-                                onChanged: (text) {
-                                  skulist[index] = text;
-                                },
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [FilteringTextInputFormatter.digitsOnly,LengthLimitingTextInputFormatter(4)],
-                                decoration: const InputDecoration(
-                                  hintText: "enter",
-                                  hintStyle: TextStyle(fontSize: 12.0),
-                                  border: OutlineInputBorder(),
-                                  label: Center(child: Text("SKU")),
-                                  labelStyle: TextStyle(fontSize: 10.0),
-                                ),
+                              decoration: const InputDecoration(
+                                hintText: "enter",
+                                hintStyle: TextStyle(fontSize: 12.0),
+                                border: OutlineInputBorder(),
+                                label: Center(child: Text("SKU")),
+                                labelStyle: TextStyle(fontSize: 10.0),
                               ),
                             ),
                           ),
-                          const Spacer(flex: 1),
-                          Flexible(
-                            flex: 2,
-                            child: Container(
-                              color: Colors.white,
-                              width: 100,
-                              height: 35,
-                              child: TextField(
-                                onChanged: (text) {
-                                  faceList[index]=text;
-                                },
-                                keyboardType: TextInputType.number,
-                                inputFormatters: [FilteringTextInputFormatter.digitsOnly,LengthLimitingTextInputFormatter(4)],
-                                decoration: const InputDecoration(
-                                  hintText: "enter",
-                                  hintStyle: TextStyle(fontSize: 12.0),
-                                  border: OutlineInputBorder(),
-                                  label: Center(child: Text("FACE",)),
-                                  labelStyle: TextStyle(fontSize: 10.0),
-                                ),
+                        ),
+                        const Spacer(flex: 1),
+                        Flexible(
+                          flex: 2,
+                          child: Container(
+                            color: Colors.white,
+                            width: 100,
+                            height: 35,
+                            child: TextField(
+                              onChanged: (text) {
+                                faceList[index] = text;
+                              },
+                              keyboardType: TextInputType.number,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                                LengthLimitingTextInputFormatter(4)
+                              ],
+                              decoration: const InputDecoration(
+                                hintText: "enter",
+                                hintStyle: TextStyle(fontSize: 12.0),
+                                border: OutlineInputBorder(),
+                                label: Center(child: Text("FACE",)),
+                                labelStyle: TextStyle(fontSize: 10.0),
                               ),
                             ),
                           ),
-                          const SizedBox(width: 15.0,)
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 15.0,)
+                      ],
                     ),
-                  );
+                  ),
+                );
               }
-              ),
+          ),
         ),
         Center(
           child: Visibility(
@@ -201,7 +220,7 @@ class _InputTabState extends State<InputTab> {
               ),
               style: TextButton.styleFrom(backgroundColor: Colors.blue),
               onPressed: () {
-                createVisitations(widget.access, brand_id, widget.storeId);
+                checkInput();
                 print(skulist);
                 print(faceList);
               },
@@ -211,51 +230,61 @@ class _InputTabState extends State<InputTab> {
       ],
     );
   }
-  void createVisitations(String access, List brandId,int storeId) async {
-    for(int i=0;i<skulist.length;i++){
-      if((skulist[i] == '-1' && faceList[i] == '-1') || (skulist[i].isEmpty && faceList[i].isEmpty) || (skulist[i].isEmpty && faceList[i] == '-1') || (skulist[i]=='-1' && faceList[i].isEmpty)){
+
+  void checkInput() {
+    for (int i = 0; i < skulist.length; i++) {
+      if ((skulist[i].isEmpty && faceList[i].isEmpty) || (skulist[i].isNotEmpty && faceList[i].isNotEmpty)) {
         setState(() {
           resultColor[i] = Colors.yellow[100];
         });
-      }else{
-        if(((skulist[i] == '-1' || skulist[i].isEmpty) && faceList[i].isNotEmpty) || ((faceList[i] == '-1' || faceList[i].isEmpty) && skulist[i].isNotEmpty)){
-          setState(() {
-            snapBarMessage = "Complete the field";
-            resultColor[i] = Colors.red[400];
-          });
-          break;
-        }else{
-          await _createVisitation(skulist[i], faceList[i], access, storeId, brandId[i], widget.userId, i);
-        }
+      } else {
+        setState(() {
+          resultColor[i] = Colors.red[100];
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+            snackBar("Some thing wrong", 3));
+        print("*** ${skulist[i]} ${faceList[i]}");
+        return;
       }
     }
-    if(snapBarMessage.isEmpty){
-      snapBarMessage = "Nothing change";
-    }
-    ScaffoldMessenger.of(context).showSnackBar(snackBar(snapBarMessage));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar("All check", 1));
+    createVisitations();
   }
 
-  Future<void> _createVisitation(String SKU,String FACE,String access, int storeId, int brandId , int userId, int num) async {
+  void createVisitations() async {
+    for (int i = 0; i < skulist.length; i++) {
+      if (skulist[i].isNotEmpty && faceList[i].isNotEmpty) {
+        await _createVisitation(skulist[i],faceList[i],brand_id[i],i);
+      }
+      snapBarMessage = "Nothing add";
+    }
+    ScaffoldMessenger.of(context).showSnackBar((snackBar(snapBarMessage,3)));
+  }
+
+  Future<void> _createVisitation(String SKU, String FACE, int brandId,int num) async {
     String now = getTime();
     Dio dio = Dio();
     Response responseForBrand = await dio.post(
         "http://rvisito.herokuapp.com/api/v1/visitation/",
-        options: Options(headers: {"authorization":"Bearer $access","Content-Type":"application/x-www-form-urlencoded"}),
+        options: Options(headers: {
+          "authorization": "Bearer ${widget.access}",
+          "Content-Type": "application/x-www-form-urlencoded"
+        }),
         data: {
-          "user": userId,
+          "user": widget.userId,
           "brand": brandId,
-          "store" : storeId,
-          "date" : now,
-          "face" : FACE,
-          "sku" : SKU
+          "store": widget.storeId,
+          "date": now,
+          "face": FACE,
+          "sku": SKU
         }
     );
-    if(responseForBrand.statusCode == 201){
+    if (responseForBrand.statusCode == 201) {
       setState(() {
         snapBarMessage = "Successfully registered";
         resultColor[num] = Colors.green[100];
       });
-    }else if(responseForBrand.statusCode == 400){
+    } else if (responseForBrand.statusCode == 400) {
       snapBarMessage = "sending ERROR";
       resultColor[num] = Colors.red[400];
     }

@@ -21,7 +21,7 @@ class _SplashState extends State<Splash> {
     super.initState();
     getValue().whenComplete(() async{
       await Future.delayed(const Duration(seconds: 2), () {
-        if(finalUsername == null || finalPassword == null){
+        if(finalUsername == "" || finalPassword == ""){
           Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (BuildContext context) => const Login()));

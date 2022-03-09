@@ -123,7 +123,7 @@ class _ProfileStoreState extends State<ProfileStore> {
                                         physics: const NeverScrollableScrollPhysics(),
                                         children: [
                                           InputTab(access: widget.access, productName: productName,productId: productId, storeId: widget.storeId,userId: widget.userId),
-                                          Visitation(access: widget.access, id: widget.storeId,)
+                                          Visitation(access: widget.access, id: widget.storeId,user : widget.userId)
                                         ],
                                       ),
                                     )

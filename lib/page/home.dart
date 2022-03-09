@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:searchfield/searchfield.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:visito/page/login.dart';
 import 'package:visito/page/profilestore.dart';
 
 class Home extends StatefulWidget {
@@ -36,9 +38,14 @@ class _HomeState extends State<Home> {
       List showStore = allStores;
       return GestureDetector(
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: Scaffold(
-          body: SafeArea(
-            child: Container(
+        child: SafeArea(
+          child: Scaffold(
+            drawer: MenuDrawer(),
+            appBar: AppBar(
+              title: const Text("Stores"),
+              centerTitle: true,
+            ),
+            body: Container(
               color: Colors.grey[200],
               child: Column(
                 children: [
@@ -129,3 +136,41 @@ class _HomeState extends State<Home> {
     }
   }
 }
+
+class MenuDrawer extends StatefulWidget {
+  MenuDrawer({Key? key}) : super(key: key);
+
+  @override
+  State<MenuDrawer> createState() => _MenuDrawerState();
+}
+
+class _MenuDrawerState extends State<MenuDrawer> {
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      backgroundColor: Colors.green[200],
+      child: ListView(
+        children:  [
+          // DrawerHeader(
+          // child: Text('Side menu',style: TextStyle(color: Colors.white, fontSize: 25)),
+          // ),
+          ListTile(
+            title: const Text("EXIT"),
+            leading: const Icon(Icons.exit_to_app),
+            onTap: () => exitProccess(),
+          )
+        ],
+      ),
+    );
+  }
+
+  void exitProccess() async {
+    final SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    sharedPreferences.setString("username", "");
+    sharedPreferences.setString("password", "");
+    Navigator.pushReplacement(context,
+        MaterialPageRoute(builder: (BuildContext context) => const Login())
+    );
+  }
+}
+
