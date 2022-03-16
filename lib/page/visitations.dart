@@ -56,6 +56,7 @@ class _VisitationState extends State<Visitation> {
         ],
       );
     }
+
   }
 
   Future<void> getVisitation() async {
@@ -230,11 +231,9 @@ class _VisitCardState extends State<VisitCard> {
           "store" : widget.storeId.toString(),
         }
       );
-      if(response.statusCode == 200){
-
+      if(response.statusCode == 201){
         ScaffoldMessenger.of(context).showSnackBar(snackBar("successfully updated"));
       }else{
-
         ScaffoldMessenger.of(context).showSnackBar(snackBar("failed update"));
       }
     }catch(e){

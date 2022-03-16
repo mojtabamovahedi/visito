@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:dio/dio.dart';
+import 'package:path_provider/path_provider.dart';
 import 'information.dart';
 import 'visitations.dart';
+import 'package:dio/dio.dart';
+
+
 
 List product = [];
 List productName = [];
 List productId = [];
 bool _pageLoading = true;
-
 
 
 class ProfileStore extends StatefulWidget {
@@ -136,10 +139,36 @@ class _ProfileStoreState extends State<ProfileStore> {
                     ),
                   ),
                 ),
-              )),
+              ),
+              floatingActionButton: FloatingActionButton(
+                onPressed: (){
+                  downloadExcel();
+                },
+                child: const Icon(Icons.file_download),
+                backgroundColor: Colors.green[600],
+          ),
+          ),
         ),
       );
     }
+  }
+
+  Future downloadExcel() async {
+    Dio dio = Dio();
+    var dir = await getApplicationDocumentsDirectory();
+    var excelDownloadPath = "${dir.path}/store_${widget.storeId}.xml";
+    Response response = await dio.download(
+        "http://rvisito.herokuapp.com/api/v1/visitation/download/?store_id=${widget.storeId}",
+        excelDownloadPath,
+      options: Options(headers: {"Authorization":"Bearer ${widget.access}"}),
+      onReceiveProgress: (received, total){
+          var progress = (received / total) * 100;
+          debugPrint("rec: $received total: $total $progress");
+      }
+    );
+    debugPrint("3=> code ${response.statusCode}");
+    debugPrint(excelDownloadPath);
+    return excelDownloadPath;
   }
 
 }
